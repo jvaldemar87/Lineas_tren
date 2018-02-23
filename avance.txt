@@ -1,0 +1,40 @@
+
+Misma Linea:
+
+1. Direccion Reversa
+2. Identificar puntos de cruce y agregar las estaciones a tu ruta, e imprimirlas en orden
+
+
+
+Scenario 1: tiene puntos de cruce
+De: Zoologico
+A: Escultura
+
+
+
+
+9
+8
+12
+11
+
+
+
+
+lista rutafloyd
+int inicio
+int fin
+
+
+intermedio
+4
+
+
+5 inicio
+
+8
+
+4
+
+9
+12 fin
