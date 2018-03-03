@@ -39,6 +39,7 @@ public class Lineas_tren {
         LinkedList<Estaciones> linea8 = new LinkedList<>();
         LinkedList<Estaciones> ruta = new LinkedList<>();
         cargarLineas(linea1, linea2, linea3, linea4, linea5, linea6, linea7, linea8);
+        int gastoDeRuta = 0;
         
         //Hacemos algoritmo de Floy en matrices
         Matrices matriz = new Matrices();
@@ -169,16 +170,24 @@ public class Lineas_tren {
                                 //Agregamos estacion inicio floyd
                                 ruta.add(contadorEstaciones,todasEstaciones.get(indice1));
                                 //Agregamos estacion fin floyd
-                                ruta.add(contadorEstaciones +1,todasEstaciones.get(indice2));
-                                //En este punto iniciamos con Floyd
-                                matriz.resuelveFloyd(todasEstaciones.get(indice1).getTipo(), todasEstaciones.get(indice2).getTipo());
-                                matriz.imprimeIntermedios();
-                                intermedios = matriz.getIntermedio();
-                                for (int valor : intermedios) {
-                                    for(Estaciones estacion: todasEstaciones){
-                                        if(estacion.getTipo() == valor){
-                                            ruta.add(contadorEstaciones +1, estacion);
-                                            break;
+                                
+                                
+                                //checamos si son el mismo punto de cruce para entrar o no a Floyd
+                                if(indice1 != indice2){
+                                    //En este punto iniciamos con Floyd
+                                    ruta.add(contadorEstaciones +1,todasEstaciones.get(indice2));
+                                    matriz.resuelveFloyd(todasEstaciones.get(indice1).getTipo(), todasEstaciones.get(indice2).getTipo());
+                                    matriz.imprimeIntermedios();
+                                    intermedios = matriz.getIntermedio();
+
+                                    for (int i = intermedios.size(); i > 0; i--) {
+
+                                        for(Estaciones estacion: todasEstaciones){
+
+                                            if(estacion.getTipo() == intermedios.get(i - 1)){
+                                                ruta.add(contadorEstaciones + 1, estacion);
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -191,28 +200,38 @@ public class Lineas_tren {
                     }
                 } while (todasEstaciones.get(indice1).getNumero() != estacionFinal.getNumero() && banderaFloyd == false);
             //Direccion reversa
-            } else {/*
+            } else {
                 int indice1 = estacionInicio.getPk_estacionid() -1;
-                int indice2 = estacionInicio.getPk_estacionid() -1;
+                int indice2 = estacionFinal.getPk_estacionid() -1;
                 int contadorEstaciones = 0;
                 boolean banderaFloyd = false;
-                do {                    
+                do {
                     ruta.add(todasEstaciones.get(indice1));
                     contadorEstaciones++;
                     indice1--;
                     if(todasEstaciones.get(indice1).getTipo() != -1){
-                        do {                            
+                        do { 
                             if(todasEstaciones.get(indice2).getTipo() != -1){
+                                //Agregamos estacion inicio floyd
                                 ruta.add(contadorEstaciones,todasEstaciones.get(indice1));
-                                ruta.add(contadorEstaciones-1,todasEstaciones.get(indice2));
-                                matriz.resuelveFloyd(todasEstaciones.get(indice1).getTipo(), todasEstaciones.get(indice2).getTipo());
-                                matriz.imprimeIntermedios();
-                                intermedios = matriz.getIntermedio();
-                                for (int valor : intermedios) {
-                                    for (Estaciones estacion: todasEstaciones) {
-                                        if(estacion.getTipo() == valor){
-                                            ruta.add(contadorEstaciones-1,estacion);
-                                            break;
+                                //Agregamos estacion fin floyd
+                                
+                                
+                                //checamos si son el mismo punto de cruce para entrar o no a Floyd
+                                if(indice1 != indice2){
+                                    //En este punto iniciamos con Floyd
+                                    ruta.add(contadorEstaciones +1,todasEstaciones.get(indice2));
+                                    matriz.resuelveFloyd(todasEstaciones.get(indice1).getTipo(), todasEstaciones.get(indice2).getTipo());
+                                    intermedios = matriz.getIntermedio();
+
+                                    for (int i = intermedios.size(); i > 0; i--) {
+
+                                        for(Estaciones estacion: todasEstaciones){
+
+                                            if(estacion.getTipo() == intermedios.get(i - 1)){
+                                                ruta.add(contadorEstaciones + 1, estacion);
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -221,25 +240,124 @@ public class Lineas_tren {
                             }
                             ruta.add(contadorEstaciones, todasEstaciones.get(indice2));
                             indice2++;
-                        } while (todasEstaciones.get(indice2).getNumero() != estacionInicio.getNumero());
+                        } while (todasEstaciones.get(indice2).getNumero() != estacionInicio.getNumero());   
                     }
                 } while (todasEstaciones.get(indice1).getNumero() != estacionFinal.getNumero() && banderaFloyd == false);
-            */}
+            }
         }
         
         
         //---------------------------------------- arriba de este punto es para misma linea -----------------------------------------
         else{
-            // si no son de la misma linea
+            // no son de la misma linea
+            
+            Boolean[] banderaRutaInicio = new Boolean[2];
+            Boolean[] banderaRutaFinal = new Boolean[2];
+            
+            int indice1 = estacionInicio.getPk_estacionid() - 1;
+            int indice2 = estacionFinal.getPk_estacionid() -1;
+            
+            LinkedList <Estaciones> inicioIzq = new LinkedList<>();
+            LinkedList <Estaciones> inicioDer = new LinkedList<>();
+            
+            LinkedList <Estaciones> finalIzq = new LinkedList<>();
+            LinkedList <Estaciones> finalDer = new LinkedList<>();
+            
+            //------ inicio -----------
+            //inicio hacia la izquierda en la ruta
+            while((indice1 > 0 && indice1 < todasEstaciones.size() + 1) && (estacionInicio.getLinea() == todasEstaciones.get(indice1).getLinea())){
+                
+                //Si la estacion es un punto de cruce
+                if(todasEstaciones.get(indice1).getTipo() != -1){
+                    banderaRutaInicio[0] = true;                  
+                    break;
+                }
+                 
+                inicioIzq.add(todasEstaciones.get(indice1));
+                indice1 --;
+            }
+            
+            inicioIzq.add(todasEstaciones.get(indice1));
+            
+            indice1 = estacionInicio.getPk_estacionid() - 1;
+            while((indice1 > 0 && indice1 < todasEstaciones.size() + 1) && (estacionInicio.getLinea() == todasEstaciones.get(indice1).getLinea())){
+                
+                //Si la estacion es un punto de cruce
+                if(todasEstaciones.get(indice1).getTipo() != -1){
+                    banderaRutaInicio[1] = true;                  
+                    break;
+                }
+                 
+                inicioDer.add(todasEstaciones.get(indice1));         
+                indice1 ++;
+            }
+            inicioDer.add(todasEstaciones.get(indice1));
+            
+            //------- fin -----------
+            
+            while((indice2 > 0 && indice2 < todasEstaciones.size() + 1) && (estacionFinal.getLinea() == todasEstaciones.get(indice2).getLinea())){
+                
+                //Si la estacion es un punto de cruce
+                if(todasEstaciones.get(indice2).getTipo() != -1){
+                    
+                    banderaRutaFinal[0] = true;                  
+                    break;
+                }
+                 
+                finalIzq.add(0,todasEstaciones.get(indice2));         
+                indice2 --;
+            }
+            finalIzq.add(0,todasEstaciones.get(indice2));
+            indice2 = estacionFinal.getPk_estacionid() -1;
+            
+            while((indice2 > 0 && indice2 < todasEstaciones.size() + 1) && (estacionFinal.getLinea() == todasEstaciones.get(indice2).getLinea())){
+                
+                //Si la estacion es un punto de cruce
+                if(todasEstaciones.get(indice2).getTipo() != -1){
+                    
+                    banderaRutaFinal[1] = true;                  
+                    break;
+                }
+                 
+                finalDer.add(0,todasEstaciones.get(indice2));         
+                indice2 ++;
+            }
+            finalDer.add(0,todasEstaciones.get(indice2));
+            
+           ///////////////////aqui comparamos las rutas para saber cuales son reales
+           
+           if(banderaRutaInicio[0] == true && banderaRutaFinal[0] == true){
+               matriz.resuelveFloyd(inicioIzq.getLast().getTipo(), finalIzq.getFirst().getTipo());
+               matriz.getIntermedio();
+           }
+           if(banderaRutaInicio[0] == true && banderaRutaFinal[1] == true){}
+           if(banderaRutaInicio[1] == true && banderaRutaFinal[0] == true){}
+           if(banderaRutaInicio[1] == true && banderaRutaFinal[1] == true){}
+            
+            
+            
+            for(Estaciones estacion : inicioDer) System.out.println("Estacion: " + estacion.getNombre());
+            for(Estaciones estacion : finalDer) System.out.println("Estacion: " + estacion.getNombre());
+            
+            LinkedList<Estaciones> 
+            
+            
+            matriz.contarGastos(inicioIzq.getLast().getTipo(), finalIzq.getFirst().getTipo());
+            System.out.println("Gasto floyd: " + matriz.getGastoDeRuta());
+
+            
+            
         }
         
         
         
         
         for(Estaciones estacion : ruta){
-            System.out.print("Estacion: " + estacion.getNombre() + "\t \t");
+            System.out.println("================================================");
+            System.out.println("Estacion: " + estacion.getNombre());
             System.out.print("Numero: " + estacion.getNumero() + "\t");
             System.out.println("Linea: " + estacion.getLinea());
+            System.out.println("================================================");
         }
     }
     
@@ -351,8 +469,6 @@ public class Lineas_tren {
         int mid = (max + min) / 2;
 
         if (list.get(mid).getNombre().equals(value)) {
-            System.out.println("Estacion ID: " + list.get(mid).getPk_estacionid());
-            System.out.println("Tipo: " + list.get(mid).getTipo());
             return list.get(mid).getPk_estacionid();
         } else if (list.get(mid).getNombre().compareTo(value) > 0) {
             return binarySearch(list, value, min, mid - 1);
