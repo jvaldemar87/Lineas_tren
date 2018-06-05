@@ -125,32 +125,14 @@ public class Matrices {
         this.gastoDeRuta = gastoDeRuta;
     }
     
-    public void contarGastos(int inicio, int fin) {
-        int gastoTotal = 0;
-        gastoTotal = matrizM[inicio][intermedio.get(0)];
-        
-        for(int i = 0; i < intermedio.size() - 1; i++) {
-            gastoTotal = gastoTotal + matrizM[intermedio.get(i)][intermedio.get(i+1)];
-            System.out.println("Entro aqui");
-        }
-        gastoTotal = matrizM[intermedio.getLast()][fin];
-        
-        this.gastoDeRuta = gastoTotal;
-    }
-    
     
     public void resuelveFloyd(int inicio, int fin) {
-        
         //Condicion base
         if (matrizT[inicio][fin] == 99) {
             //terminamos
-            //gastoDeRuta = gastoDeRuta + matrizM[inicio][fin];
+            gastoDeRuta = gastoDeRuta + matrizM[inicio][fin];
         } //condicion recursiva
         else {
-            //gastoDeRuta = gastoDeRuta + matrizM[inicio][fin];
-            //System.out.println("Inicio: " + inicio + " Fin: " + fin);
-            //System.out.println("Gasto agregado: " + matrizM[inicio][fin]);
-            // ---- Guardamos el punto medio
             if (intermedio.size() == 0) {
                 this.intermedio.add(matrizT[inicio][fin]);
             } else {
@@ -182,5 +164,16 @@ public class Matrices {
             System.out.println(valor);
         }
     }
+    
+//    public void desactivaEstacion(int tipoEstacion){
+//        for (int i = 0; i < 18; i++) {
+//            for (int j = 0; j < 18; j++) {
+//                if(i == tipoEstacion || j == tipoEstacion){
+//                    matrizT[i][j] = 99;
+//                    matrizM[i][j] = 99;
+//                }
+//            }
+//        }
+//    }
 
 }
